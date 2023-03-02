@@ -31,9 +31,15 @@ PRODUCT_COPY_FILES += \
     vendor/awaken/prebuilt/common/etc/init/init.awaken-updater.rc:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/init/init.awaken-updater.rc
 endif
 
-# Sign builds if building an official build
-ifeq ($(filter-out official,$(AWAKEN_BUILD_TYPE)),)
-    PRODUCT_DEFAULT_DEV_CERTIFICATE := $(KEYS_LOCATION)
+# Signing
+ifneq (eng,$(TARGET_BUILD_VARIANT))
+ifneq (,$(wildcard vendor/awaken/signing/keys/releasekey.pk8))
+PRODUCT_DEFAULT_DEV_CERTIFICATE := vendor/awaken/signing/keys/releasekey
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.oem_unlock_supported=1
+endif
+ifneq (,$(wildcard vendor/awaken/signing/keys/otakey.x509.pem))
+PRODUCT_OTA_PUBLIC_KEYS := vendor/awaken/signing/keys/otakey.x509.pem
+endif
 endif
 
 # Set all versions
